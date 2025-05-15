@@ -45,8 +45,10 @@ RUN pip3 install --no-cache-dir torch==2.4.0 torchvision torchaudio --index-url 
 COPY . /workspace/runpod-worker-inswapper
 WORKDIR /workspace/runpod-worker-inswapper
 RUN pip3 install -r requirements.txt && \
-    pip3 uninstall -y onnxruntime && \
-    pip3 install onnxruntime-gpu==1.20.1
+    # remove any CPU‑only wheels that came in via insightface deps
+    pip3 uninstall -y onnxruntime onnxruntime-gpu || true && \
+    # install the CUDA‑12 + cuDNN 9 wheel
+    pip3 install --no-cache-dir onnxruntime-gpu==1.20.1
 
 # ── copy the ONNX you downloaded ──────────────────────────────────────────────
 COPY checkpoints/inswapper_128.onnx /workspace/runpod-worker-inswapper/checkpoints/inswapper_128.onnx
