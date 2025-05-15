@@ -43,9 +43,9 @@ WORKDIR /workspace
 RUN pip3 install --no-cache-dir torch==2.4.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 
 # Install Inswapper Serverless Worker
-RUN git clone https://github.com/ashleykleynhans/runpod-worker-inswapper.git && \
-    cd /workspace/runpod-worker-inswapper && \
-    pip3 install -r requirements.txt && \
+COPY . /workspace/runpod-worker-inswapper
+WORKDIR /workspace/runpod-worker-inswapper
+RUN pip3 install -r requirements.txt && \
     pip3 uninstall -y onnxruntime && \
     pip3 install onnxruntime-gpu
 
