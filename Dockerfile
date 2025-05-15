@@ -49,16 +49,17 @@ RUN pip3 install -r requirements.txt && \
     pip3 uninstall -y onnxruntime && \
     pip3 install onnxruntime-gpu
 
-# Download insightface checkpoints
-RUN cd /workspace/runpod-worker-inswapper && \
-    mkdir -p checkpoints/models && \
-    cd checkpoints && \
-    COPY checkpoints/inswapper_128.onnx /workspace/runpod-worker-inswapper/checkpoints/inswapper_128.onnx
-    cd models && \
-    wget https://github.com/deepinsight/insightface/releases/download/v0.7/buffalo_l.zip && \
+# ── copy the ONNX you downloaded ──────────────────────────────────────────────
+COPY checkpoints/inswapper_128.onnx /workspace/runpod-worker-inswapper/checkpoints/inswapper_128.onnx
+
+# ── download buffalo_l (needs RUN!) ───────────────────────────────────────────
+RUN cd /workspace/runpod-worker-inswapper/checkpoints && \
+    mkdir -p models && cd models && \
+    wget -q https://github.com/deepinsight/insightface/releases/download/v0.7/buffalo_l.zip && \
     mkdir buffalo_l && \
     cd buffalo_l && \
-    unzip ../buffalo_l.zip
+    unzip -q ../buffalo_l.zip
+
 
 # Install CodeFormer
 RUN cd /workspace/runpod-worker-inswapper && \
