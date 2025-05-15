@@ -1,4 +1,4 @@
-FROM nvidia/cuda:12.1.1-cudnn8-devel-ubuntu22.04
+FROM nvidia/cuda:12.4.0-cudnn9-devel-ubuntu22.04
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
@@ -41,13 +41,12 @@ WORKDIR /workspace
 
 # Install Torch
 RUN pip3 install --no-cache-dir torch==2.4.0 torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
-
 # Install Inswapper Serverless Worker
 COPY . /workspace/runpod-worker-inswapper
 WORKDIR /workspace/runpod-worker-inswapper
 RUN pip3 install -r requirements.txt && \
     pip3 uninstall -y onnxruntime && \
-    pip3 install onnxruntime-gpu
+    pip3 install onnxruntime-gpu==1.20.1
 
 # ── copy the ONNX you downloaded ──────────────────────────────────────────────
 COPY checkpoints/inswapper_128.onnx /workspace/runpod-worker-inswapper/checkpoints/inswapper_128.onnx
