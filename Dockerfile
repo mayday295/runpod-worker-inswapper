@@ -53,7 +53,7 @@ RUN pip3 install -r requirements.txt && \
 RUN cd /workspace/runpod-worker-inswapper && \
     mkdir -p checkpoints/models && \
     cd checkpoints && \
-    wget -O inswapper_128.onnx https://github.com/facefusion/facefusion-assets/releases/download/models/inswapper_128.onnx && \
+    COPY checkpoints/inswapper_128.onnx /workspace/runpod-worker-inswapper/checkpoints/inswapper_128.onnx
     cd models && \
     wget https://github.com/deepinsight/insightface/releases/download/v0.7/buffalo_l.zip && \
     mkdir buffalo_l && \
