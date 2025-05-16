@@ -11,6 +11,7 @@ onnxruntime
 opencv-python
 protobuf
 scikit-image
+requests
 scipy
 torch
 torchvision

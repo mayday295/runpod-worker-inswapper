@@ -4,6 +4,7 @@ import uuid
 import base64
 import copy
 import cv2
+import requests
 import insightface
 import numpy as np
 import traceback
@@ -19,6 +20,15 @@ FACE_SWAP_MODEL = 'checkpoints/inswapper_128.onnx'
 TMP_PATH = '/tmp/inswapper'
 logger = RunPodLogger()
 
+# helper to load image from URL or Base64
+def load_image_field(field: str) -> Image.Image:
+    if field.startswith("http://") or field.startswith("https://"):
+        resp = requests.get(field, timeout=10)
+        resp.raise_for_status()
+        return Image.open(io.BytesIO(resp.content)).convert("RGB")
+    else:
+        data = base64.b64decode(field)
+        return Image.open(io.BytesIO(data)).convert("RGB")
 
 # ---------------------------------------------------------------------------- #
 # Application Functions                                                        #
@@ -309,26 +319,13 @@ def face_swap_api(job_id: str, job_input: dict):
         os.makedirs(TMP_PATH)
 
     unique_id = uuid.uuid4()
-    source_image_data = job_input['source_image']
-    target_image_data = job_input['target_image']
-
-    # Decode the source image data
-    source_image = base64.b64decode(source_image_data)
-    source_file_extension = determine_file_extension(source_image_data)
-    source_image_path = f'{TMP_PATH}/source_{unique_id}{source_file_extension}'
-
-    # Save the source image to disk
-    with open(source_image_path, 'wb') as source_file:
-        source_file.write(source_image)
-
-    # Decode the target image data
-    target_image = base64.b64decode(target_image_data)
-    target_file_extension = determine_file_extension(target_image_data)
-    target_image_path = f'{TMP_PATH}/target_{unique_id}{target_file_extension}'
-
-    # Save the target image to disk
-    with open(target_image_path, 'wb') as target_file:
-        target_file.write(target_image)
+    # Load image (URL or Base64) and save as JPEG
+    src_img = load_image_field(job_input['source_image'])
+    tgt_img = load_image_field(job_input['target_image'])
+    source_image_path = f'{TMP_PATH}/source_{unique_id}.jpg'
+    target_image_path = f'{TMP_PATH}/target_{unique_id}.jpg'
+    src_img.save(source_image_path, format="JPEG")
+    tgt_img.save(target_image_path, format="JPEG")
 
     try:
         logger.info(f'Source indexes: {job_input["source_indexes"]}', job_id)
